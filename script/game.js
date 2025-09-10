@@ -20,8 +20,6 @@ function showReplayButton() {
     btn.onclick = () => window.location.reload();
   }
 }
-
-// Masquer le bouton au début de partie
 function hideReplayButton() {
   const btn = document.getElementById('replayBtn');
   if (btn) btn.style.display = 'none';
@@ -63,7 +61,7 @@ let goal = 70000;
 // Liste des animations "+1000"
 let moneyGains = [];
 
-// Intern gagne 1000€ toutes les secondes
+// Intern gagne un montant aléatoire toutes les secondes
 let moneyInterval = setInterval(() => {
   if (!gameOver && !gameWon) {
     // Gain aléatoire entre 500 et 2000
@@ -91,7 +89,6 @@ let moneyInterval = setInterval(() => {
 window.addEventListener("keydown", (event) => {
   keys[event.key] = true;
 });
-
 window.addEventListener("keyup", (event) => {
   keys[event.key] = false;
 });
@@ -100,8 +97,19 @@ function checkCollision() {
   let dx = intern.x - boss.x;
   let dy = intern.y - boss.y;
   let distance = Math.sqrt(dx * dx + dy * dy);
-
   return distance < intern.size + boss.size;
+}
+
+// Petite fonction utilitaire pour attendre un délai
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Affiche les boutons après un délai (async/await)
+async function showEndButtons() {
+  await wait(2000); // attend 2 secondes
+  showReplayButton();
+  showMenuButton();
 }
 
 function draw() {
@@ -118,7 +126,7 @@ function draw() {
   ctx.textAlign = "left";
   ctx.fillText("💰 Argent: " + money + " €", 20, 40);
 
-  // dessiner les "+1000" en animation
+  // dessiner les gains en animation
   for (let i = 0; i < moneyGains.length; i++) {
     let g = moneyGains[i];
     ctx.globalAlpha = g.alpha;
@@ -127,15 +135,15 @@ function draw() {
     ctx.fillText(g.text, g.x, g.y);
 
     // mise à jour animation
-    g.y -= 0.7;       // monte doucement
-    g.alpha -= 0.02;  // devient transparent
+    g.y -= 0.7;
+    g.alpha -= 0.02;
     g.life--;
 
     if (g.life <= 0) {
       moneyGains.splice(i, 1);
       i--;
     }
-    ctx.globalAlpha = 1; // reset opacité
+    ctx.globalAlpha = 1;
   }
 
   // écran de fin style 8bits
@@ -145,6 +153,7 @@ function draw() {
     ctx.textAlign = "center";
     ctx.font = "130px 'Micro 5', monospace";
     ctx.lineWidth = 8;
+
     let mainText = "";
     let subText = "";
     if (gameWon) {
@@ -154,20 +163,23 @@ function draw() {
       mainText = "VICTOIRE DU PATRON";
       subText = "L'intern a été attrapé par le patron !";
     }
-    // Texte du haut : doré avec bordure noire
+
+    // Texte du haut
     ctx.strokeStyle = "#000";
     ctx.strokeText(mainText, canvas.width / 2, canvas.height / 2);
     ctx.fillStyle = "#FFD700";
     ctx.fillText(mainText, canvas.width / 2, canvas.height / 2);
-    // Texte du bas : blanc avec bordure noire
+
+    // Texte du bas
     ctx.font = "45px 'Micro 5', monospace";
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 6;
     ctx.strokeText(subText, canvas.width / 2, canvas.height / 2 + 70);
     ctx.fillStyle = "#fff";
     ctx.fillText(subText, canvas.width / 2, canvas.height / 2 + 70);
-  showReplayButton();
-  showMenuButton();
+
+    // Appel async pour afficher les boutons avec délai
+    showEndButtons();
   }
 }
 
@@ -178,18 +190,10 @@ function update() {
   for (let key in keys) {
     if (keys[key]) {
       switch (key) {
-        case "ArrowUp":
-          intern.move("ArrowUp");
-          break;
-        case "ArrowDown":
-          intern.move("ArrowDown");
-          break;
-        case "ArrowLeft":
-          intern.move("ArrowLeft");
-          break;
-        case "ArrowRight":
-          intern.move("ArrowRight");
-          break;
+        case "ArrowUp": intern.move("ArrowUp"); break;
+        case "ArrowDown": intern.move("ArrowDown"); break;
+        case "ArrowLeft": intern.move("ArrowLeft"); break;
+        case "ArrowRight": intern.move("ArrowRight"); break;
       }
     }
   }
@@ -207,9 +211,9 @@ function update() {
         }
       } else {
         switch (key.toLowerCase()) {
-          case "w": boss.move("z"); break; 
+          case "w": boss.move("z"); break;
           case "s": boss.move("s"); break;
-          case "a": boss.move("q"); break; 
+          case "a": boss.move("q"); break;
           case "d": boss.move("d"); break;
         }
       }
@@ -223,7 +227,6 @@ function update() {
   }
 }
 
-
 function gameLoop() {
   update();
   draw();
@@ -232,12 +235,16 @@ function gameLoop() {
   }
 }
 
-
 // Pour contrôle depuis menu.ts
 export function startGame() {
-  // Réinitialise l'état
-  intern = new Intern(200, 200, 5, 20, canvas);
-  boss = new Boss(600, 400, 5, 25, canvas);
+  // Calculer le centre du canvas
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const offset = 50; // distance entre les deux personnages
+
+  intern = new Intern(centerX - offset, centerY, 5, 20, canvas);
+  boss   = new Boss(centerX + offset, centerY, 5, 25, canvas);
+
   keys = {};
   gameOver = false;
   gameWon = false;
