@@ -1,9 +1,39 @@
+// Affichage/Masquage du bouton menu principal
+function showMenuButton() {
+  const btn = document.getElementById('menuBtn');
+  if (btn) {
+    btn.style.display = 'inline-block';
+    btn.onclick = () => window.location.href = './index.html';
+  }
+}
+function hideMenuButton() {
+  const btn = document.getElementById('menuBtn');
+  if (btn) btn.style.display = 'none';
+}
+// Affichage du bouton rejouer à la fin (HTML)
+function showReplayButton() {
+  const btn = document.getElementById('replayBtn');
+  if (btn) {
+    btn.style.display = 'inline-block';
+    // Supprime tout ancien écouteur
+    btn.onclick = null;
+    btn.onclick = () => window.location.reload();
+  }
+}
+
+// Masquer le bouton au début de partie
+function hideReplayButton() {
+  const btn = document.getElementById('replayBtn');
+  if (btn) btn.style.display = 'none';
+}
 
 import { Intern } from "./intern.js";
 import { Boss } from "./boss.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+hideReplayButton();
+hideMenuButton();
 
 // resize canvas plein écran
 function resizeCanvas() {
@@ -50,6 +80,7 @@ let moneyInterval = setInterval(() => {
     if (money >= goal) {
       gameWon = true;
       cancelAnimationFrame(animationId);
+      draw(); // Affiche l'écran de fin immédiatement
     }
   }
 }, 1000);
@@ -105,25 +136,36 @@ function draw() {
     ctx.globalAlpha = 1; // reset opacité
   }
 
-  // afficher messages de fin
-  if (gameOver) {
-    ctx.fillStyle = "rgba(0,0,0,0.7)";
+  // écran de fin style 8bits
+  if (gameOver || gameWon) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "red";
-    ctx.font = "bold 80px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
-  }
-
-  if (gameWon) {
-    ctx.fillStyle = "rgba(0,0,0,0.7)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "green";
-    ctx.font = "bold 80px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("VICTOIRE 💸", canvas.width / 2, canvas.height / 2);
+    ctx.font = "130px 'Micro 5', monospace";
+    ctx.lineWidth = 8;
+    let mainText = "";
+    let subText = "";
+    if (gameWon) {
+      mainText = "VICTOIRE DE L'INTERN";
+      subText = "L'entreprise a fait faillite !";
+    } else if (gameOver) {
+      mainText = "VICTOIRE DU PATRON";
+      subText = "L'intern a été attrapé par le patron !";
+    }
+    // Texte du haut : doré avec bordure noire
+    ctx.strokeStyle = "#000";
+    ctx.strokeText(mainText, canvas.width / 2, canvas.height / 2);
+    ctx.fillStyle = "#FFD700";
+    ctx.fillText(mainText, canvas.width / 2, canvas.height / 2);
+    // Texte du bas : blanc avec bordure noire
+    ctx.font = "45px 'Micro 5', monospace";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 6;
+    ctx.strokeText(subText, canvas.width / 2, canvas.height / 2 + 70);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(subText, canvas.width / 2, canvas.height / 2 + 70);
+  showReplayButton();
+  showMenuButton();
   }
 }
 

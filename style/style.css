@@ -1,10 +1,45 @@
- html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      height: 100%;
-      width: 100%;
-    }
-    canvas {
-      display: block;
-    }
+.btn {
+  position: fixed;
+  z-index: 1000;
+  font-family: "Micro 5", monospace;
+  font-size: 2rem;
+  padding: 16px 48px;
+  background: #222;
+  color: #ffd700;
+  border: 4px solid #ffd700;
+  border-radius: 12px;
+  box-shadow: 0 4px 32px #000a;
+  cursor: pointer;
+  display: none;
+  transition: background 0.2s, color 0.2s;
+}
+#menuBtn {
+  transform: translate(-50%, 0%);
+  left: 50%;
+  top: 78%;
+}
+#menuBtn:hover {
+  background: #ffd700;
+  color: #222;
+}
+/* Bouton Rejouer centré et superposé */
+#replayBtn {
+  transform: translate(-50%, 0%);
+  left: 50%;
+  top: 65%;
+}
+#replayBtn:hover {
+  background: #ffd700;
+  color: #222;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+canvas {
+  display: block;
+}
