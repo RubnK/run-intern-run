@@ -1,4 +1,7 @@
-class Intern {
+
+import { clampToBounds } from "./walls.js";
+
+export class Intern {
   constructor(x, y, speed, size, canvas) {
     this.x = x;
     this.y = y;
@@ -15,23 +18,26 @@ class Intern {
   }
 
   move(key) {
-    const min = this.size;
-    const maxLeft = this.canvas.width - this.size;
-    const maxTop = this.canvas.height - this.size;
+    let newX = this.x;
+    let newY = this.y;
 
     switch (key) {
       case "ArrowUp":
-        this.y = this.y - this.speed >= min ? this.y - this.speed : min;
+        newY = this.y - this.speed;
         break;
       case "ArrowDown":
-        this.y = this.y + this.speed <= maxTop ? this.y + this.speed : maxTop;
+        newY = this.y + this.speed;
         break;
       case "ArrowLeft":
-        this.x = this.x - this.speed >= min ? this.x - this.speed : min;
+        newX = this.x - this.speed;
         break;
       case "ArrowRight":
-        this.x = this.x + this.speed <= maxLeft ? this.x + this.speed : maxLeft;
+        newX = this.x + this.speed;
         break;
     }
+    // Appliquer la contrainte des murs
+    const pos = clampToBounds(newX, newY, this.size, this.canvas);
+    this.x = pos.x;
+    this.y = pos.y;
   }
 }

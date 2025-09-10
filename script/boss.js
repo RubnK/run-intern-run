@@ -1,4 +1,7 @@
-class Boss {
+
+import { clampToBounds } from "./walls.js";
+
+export class Boss {
   constructor(x, y, speed, size, canvas) {
     this.x = x;
     this.y = y;
@@ -15,27 +18,30 @@ class Boss {
   }
 
   move(key) {
-    const min = this.size;
-    const maxLeft = this.canvas.width - this.size;
-    const maxTop = this.canvas.height - this.size;
+    let newX = this.x;
+    let newY = this.y;
 
     switch (key) {
       case "z":
       case "Z":
-        this.y = this.y - this.speed >= min ? this.y - this.speed : min;
+        newY = this.y - this.speed;
         break;
       case "s":
       case "S":
-        this.y = this.y + this.speed <= maxTop ? this.y + this.speed : maxTop;
+        newY = this.y + this.speed;
         break;
       case "q":
       case "Q":
-        this.x = this.x - this.speed >= min ? this.x - this.speed : min;
+        newX = this.x - this.speed;
         break;
       case "d":
       case "D":
-        this.x = this.x + this.speed <= maxLeft ? this.x + this.speed : maxLeft;
+        newX = this.x + this.speed;
         break;
     }
+    // Appliquer la contrainte des murs
+    const pos = clampToBounds(newX, newY, this.size, this.canvas);
+    this.x = pos.x;
+    this.y = pos.y;
   }
 }
