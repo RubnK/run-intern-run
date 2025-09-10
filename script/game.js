@@ -1,3 +1,5 @@
+import { Intern } from "./intern.js";
+import { Boss } from "./boss.js";
 // Affichage/Masquage du bouton menu principal
 function showMenuButton() {
   const btn = document.getElementById('menuBtn');
@@ -25,8 +27,6 @@ function hideReplayButton() {
   if (btn) btn.style.display = 'none';
 }
 
-import { Intern } from "./intern.js";
-import { Boss } from "./boss.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -112,9 +112,61 @@ async function showEndButtons() {
   showMenuButton();
 }
 
+// Définition des bureaux (obstacles) : 4 lignes de 7 bureaux chacun (3 centraux + 2 à gauche + 2 à droite)
+export const desks = [];
+const deskWidth = 180;    // largeur bureau (plus grand)
+const deskHeight = 90;    // hauteur bureau (plus grand)
+const centerCols = 3;
+const sideCols = 2;
+const totalCols = centerCols + sideCols * 2; // 7 colonnes au total
+const rows = 4;
+const xSpacing = 300;     // espace horizontal entre bureaux (encore plus grand)
+const ySpacing = 80;      // espace vertical entre bureaux (plus grand)
+
+const totalWidth = totalCols * deskWidth + (totalCols - 1) * xSpacing;
+const totalHeight = rows * deskHeight + (rows - 1) * ySpacing;
+const startX = (canvas.width - totalWidth) / 2;
+const startY = (canvas.height - totalHeight) / 2;
+
+for (let row = 0; row < rows; row++) {
+  for (let col = 0; col < totalCols; col++) {
+    desks.push({
+      x: startX + col * (deskWidth + xSpacing),
+      y: startY + row * (deskHeight + ySpacing),
+      width: deskWidth,
+      height: deskHeight
+    });
+  }
+}
+
+// Fonction utilitaire de collision rectangle/cercle
+export function rectCircleCollides(rect, cx, cy, radius) {
+  const distX = Math.abs(cx - rect.x - rect.width / 2);
+  const distY = Math.abs(cy - rect.y - rect.height / 2);
+
+  if (distX > (rect.width / 2 + radius)) return false;
+  if (distY > (rect.height / 2 + radius)) return false;
+
+  if (distX <= (rect.width / 2)) return true;
+  if (distY <= (rect.height / 2)) return true;
+
+  const dx = distX - rect.width / 2;
+  const dy = distY - rect.height / 2;
+  return (dx * dx + dy * dy <= radius * radius);
+}
+
 function draw() {
   // dessiner background
   ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+  // dessiner bureaux
+  ctx.fillStyle = "#bfa100";
+  for (const desk of desks) {
+    ctx.fillRect(desk.x, desk.y, desk.width, desk.height);
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(desk.x, desk.y, desk.width, desk.height);
+  }
 
   // dessiner joueurs
   intern.draw(ctx);

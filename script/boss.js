@@ -1,5 +1,5 @@
-
 import { clampToBounds } from "./walls.js";
+import { desks, rectCircleCollides } from "./game.js";
 
 export class Boss {
   constructor(x, y, speed, size, canvas) {
@@ -39,6 +39,14 @@ export class Boss {
         newX = this.x + this.speed;
         break;
     }
+
+    // Vérifie collision avec bureaux
+    for (const desk of desks) {
+      if (rectCircleCollides(desk, newX, newY, this.size)) {
+        return; // collision, ne pas bouger
+      }
+    }
+
     // Appliquer la contrainte des murs
     const pos = clampToBounds(newX, newY, this.size, this.canvas);
     this.x = pos.x;
