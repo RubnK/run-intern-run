@@ -230,6 +230,31 @@ function gameLoop() {
   }
 }
 
-background.onload = () => {
-  gameLoop();
-};
+
+// Pour contrôle depuis menu.ts
+export function startGame() {
+  // Réinitialise l'état
+  intern = new Intern(200, 200, 5, 20, canvas);
+  boss = new Boss(600, 400, 5, 25, canvas);
+  keys = {};
+  gameOver = false;
+  gameWon = false;
+  money = 0;
+  moneyGains = [];
+  hideReplayButton();
+  hideMenuButton();
+  resizeCanvas();
+  background.onload = () => {
+    gameLoop();
+  };
+  if (background.complete) {
+    gameLoop();
+  }
+}
+
+export function stopGame() {
+  cancelAnimationFrame(animationId);
+  clearInterval(moneyInterval);
+  hideReplayButton();
+  hideMenuButton();
+}
