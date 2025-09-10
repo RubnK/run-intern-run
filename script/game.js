@@ -194,22 +194,24 @@ function update() {
     }
   }
 
-  // Boss (ZQSD)
+  // Boss (ZQSD ou WASD selon layout)
+  const layout = localStorage.getItem('keyboardLayout') || 'azerty';
   for (let key in keys) {
     if (keys[key]) {
-      switch (key.toLowerCase()) {
-        case "z":
-          boss.move("z");
-          break;
-        case "s":
-          boss.move("s");
-          break;
-        case "q":
-          boss.move("q");
-          break;
-        case "d":
-          boss.move("d");
-          break;
+      if (layout === 'azerty') {
+        switch (key.toLowerCase()) {
+          case "z": boss.move("z"); break;
+          case "s": boss.move("s"); break;
+          case "q": boss.move("q"); break;
+          case "d": boss.move("d"); break;
+        }
+      } else {
+        switch (key.toLowerCase()) {
+          case "w": boss.move("z"); break; 
+          case "s": boss.move("s"); break;
+          case "a": boss.move("q"); break; 
+          case "d": boss.move("d"); break;
+        }
       }
     }
   }
