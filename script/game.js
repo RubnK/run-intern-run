@@ -66,11 +66,13 @@ let moneyGains = [];
 // Intern gagne 1000€ toutes les secondes
 let moneyInterval = setInterval(() => {
   if (!gameOver && !gameWon) {
-    money += 1000;
+    // Gain aléatoire entre 500 et 2000
+    const gain = Math.floor(Math.random() * 1500) + 500;
+    money += gain;
 
-    // Ajouter une animation "+1000"
+    // Ajouter une animation avec le bon montant
     moneyGains.push({
-      text: "+1000",
+      text: `+${gain}`,
       x: 20,
       y: 60, // sous le compteur
       alpha: 1, // opacité
