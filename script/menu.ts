@@ -6,7 +6,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const menuContainer = document.createElement('div');
   menuContainer.className = 'menu-container';
   menuContainer.innerHTML = `
-    <div class="menu-title">RUN INTERN. RUN !!</div>
+    <div class="menu-title">RUN, INTERN, RUN !</div>
     <button class="menu-btn" id="playBtn">Jouer</button>
     <button class="menu-btn" id="paramBtn">Paramètres</button>
     <button class="menu-btn" id="creditsBtn">Crédits</button>
