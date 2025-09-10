@@ -1,10 +1,19 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// fonction pour adapter la taille
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+// Création des joueurs
 let intern = new Intern(200, 200, 5, 20, canvas);
 let boss   = new Boss(600, 400, 5, 25, canvas);
 
-let keys = {}; 
+let keys = {}; // touches pressées
 
 window.addEventListener("keydown", (event) => {
   keys[event.key] = true;
