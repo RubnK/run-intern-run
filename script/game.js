@@ -1,6 +1,9 @@
 import { Intern } from "./intern.js";
 import { Boss } from "./boss.js";
-// Affichage/Masquage du bouton menu principal
+
+// ==================== UI BUTTONS ====================
+
+// Affiche le bouton menu principal
 function showMenuButton() {
   const btn = document.getElementById('menuBtn');
   if (btn) {
@@ -8,32 +11,41 @@ function showMenuButton() {
     btn.onclick = () => window.location.href = './index.html';
   }
 }
+
+// Masque le bouton menu principal
 function hideMenuButton() {
   const btn = document.getElementById('menuBtn');
   if (btn) btn.style.display = 'none';
 }
-// Affichage du bouton rejouer à la fin (HTML)
+
+// Affiche le bouton rejouer à la fin du jeu
 function showReplayButton() {
   const btn = document.getElementById('replayBtn');
   if (btn) {
     btn.style.display = 'inline-block';
-    // Supprime tout ancien écouteur
     btn.onclick = null;
-    btn.onclick = () => window.location.reload();
+    // Relance la partie sans recharger la page
+    btn.onclick = () => {
+      stopGame();
+      startGame();
+    };
   }
 }
+
+// Masque le bouton rejouer
 function hideReplayButton() {
   const btn = document.getElementById('replayBtn');
   if (btn) btn.style.display = 'none';
 }
 
+// ==================== CANVAS & CONTEXT ====================
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 hideReplayButton();
 hideMenuButton();
 
-// resize canvas plein écran
+// Redimensionne le canvas en plein écran
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -41,25 +53,29 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-// charger le background
+// ==================== BACKGROUND ====================
+
+// Charge le background du jeu
 const background = new Image();
 background.src = "assets/background/background.png";
 
-// création des joueurs
+// ==================== GAME STATE ====================
+
+// Création des joueurs (positions initiales, seront réinitialisées dans startGame)
 let intern = new Intern(200, 200, 5, 20, canvas);
 let boss   = new Boss(600, 400, 5, 25, canvas);
 
-let keys = {};
-let gameOver = false;
-let gameWon = false;
-let animationId;
+let keys = {};           // Stocke l'état des touches clavier
+let gameOver = false;    // True si le jeu est perdu
+let gameWon = false;     // True si le jeu est gagné
+let animationId;         // Id de la boucle d'animation
 
-// 💰 compteur argent
-let money = 0;
-let goal = 70000;
+// ==================== ARGENT ====================
 
-// Liste des animations "+1000"
-let moneyGains = [];
+let money = 0;           // Argent accumulé par l'intern
+let goal = 70000;        // Objectif pour gagner
+
+let moneyGains = [];     // Animations "+1000" qui s'affichent
 
 // Intern gagne un montant aléatoire toutes les secondes
 let moneyInterval = setInterval(() => {
@@ -68,7 +84,7 @@ let moneyInterval = setInterval(() => {
     const gain = Math.floor(Math.random() * 1500) + 500;
     money += gain;
 
-    // Ajouter une animation avec le bon montant
+    // Ajoute une animation pour le gain
     moneyGains.push({
       text: `+${gain}`,
       x: 20,
@@ -77,6 +93,7 @@ let moneyInterval = setInterval(() => {
       life: 60 // frames (~1 sec à 60fps)
     });
 
+    // Vérifie si l'intern a gagné
     if (money >= goal) {
       gameWon = true;
       cancelAnimationFrame(animationId);
@@ -85,7 +102,9 @@ let moneyInterval = setInterval(() => {
   }
 }, 1000);
 
-// gestion clavier
+// ==================== INPUTS ====================
+
+// Gestion du clavier (appui et relâchement)
 window.addEventListener("keydown", (event) => {
   keys[event.key] = true;
 });
@@ -93,6 +112,9 @@ window.addEventListener("keyup", (event) => {
   keys[event.key] = false;
 });
 
+// ==================== COLLISIONS ====================
+
+// Collision entre l'intern et le boss
 function checkCollision() {
   let dx = intern.x - boss.x;
   let dy = intern.y - boss.y;
@@ -100,17 +122,19 @@ function checkCollision() {
   return distance < intern.size + boss.size;
 }
 
-// Petite fonction utilitaire pour attendre un délai
+// Petite fonction utilitaire pour attendre un délai (async)
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Affiche les boutons après un délai (async/await)
+// Affiche les boutons de fin après un délai
 async function showEndButtons() {
   await wait(2000); // attend 2 secondes
   showReplayButton();
   showMenuButton();
 }
+
+// ==================== BUREAUX ====================
 
 // Définition des bureaux (obstacles) : 4 lignes de 7 bureaux chacun (3 centraux + 2 à gauche + 2 à droite)
 export const desks = [];
@@ -123,11 +147,13 @@ const rows = 4;
 const xSpacing = 300;     // espace horizontal entre bureaux (encore plus grand)
 const ySpacing = 80;      // espace vertical entre bureaux (plus grand)
 
+// Calcul des coordonnées pour centrer les bureaux
 const totalWidth = totalCols * deskWidth + (totalCols - 1) * xSpacing;
 const totalHeight = rows * deskHeight + (rows - 1) * ySpacing;
 const startX = (canvas.width - totalWidth) / 2;
 const startY = (canvas.height - totalHeight) / 2;
 
+// Génère la grille de bureaux
 for (let row = 0; row < rows; row++) {
   for (let col = 0; col < totalCols; col++) {
     desks.push({
@@ -139,7 +165,7 @@ for (let row = 0; row < rows; row++) {
   }
 }
 
-// Fonction utilitaire de collision rectangle/cercle
+// Fonction utilitaire de collision rectangle/cercle (pour les bureaux)
 export function rectCircleCollides(rect, cx, cy, radius) {
   const distX = Math.abs(cx - rect.x - rect.width / 2);
   const distY = Math.abs(cy - rect.y - rect.height / 2);
@@ -155,11 +181,14 @@ export function rectCircleCollides(rect, cx, cy, radius) {
   return (dx * dx + dy * dy <= radius * radius);
 }
 
+// ==================== RENDU ====================
+
+// Dessine tout le jeu (background, bureaux, joueurs, UI, etc.)
 function draw() {
-  // dessiner background
+  // Dessine le fond
   ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-  // dessiner bureaux
+  // Dessine les bureaux
   ctx.fillStyle = "#bfa100";
   for (const desk of desks) {
     ctx.fillRect(desk.x, desk.y, desk.width, desk.height);
@@ -168,17 +197,17 @@ function draw() {
     ctx.strokeRect(desk.x, desk.y, desk.width, desk.height);
   }
 
-  // dessiner joueurs
+  // Dessine les joueurs
   intern.draw(ctx);
   boss.draw(ctx);
 
-  // afficher compteur argent
+  // Affiche le compteur d'argent
   ctx.fillStyle = "black";
   ctx.font = "bold 28px Arial";
   ctx.textAlign = "left";
   ctx.fillText("💰 Argent: " + money + " €", 20, 40);
 
-  // dessiner les gains en animation
+  // Affiche les animations de gains d'argent
   for (let i = 0; i < moneyGains.length; i++) {
     let g = moneyGains[i];
     ctx.globalAlpha = g.alpha;
@@ -186,7 +215,7 @@ function draw() {
     ctx.font = "bold 22px Arial";
     ctx.fillText(g.text, g.x, g.y);
 
-    // mise à jour animation
+    // Animation du gain
     g.y -= 0.7;
     g.alpha -= 0.02;
     g.life--;
@@ -198,7 +227,7 @@ function draw() {
     ctx.globalAlpha = 1;
   }
 
-  // écran de fin style 8bits
+  // Affiche l'écran de fin si victoire ou défaite
   if (gameOver || gameWon) {
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -216,13 +245,13 @@ function draw() {
       subText = "L'intern a été attrapé par le patron !";
     }
 
-    // Texte du haut
+    // Texte principal
     ctx.strokeStyle = "#000";
     ctx.strokeText(mainText, canvas.width / 2, canvas.height / 2);
     ctx.fillStyle = "#FFD700";
     ctx.fillText(mainText, canvas.width / 2, canvas.height / 2);
 
-    // Texte du bas
+    // Texte secondaire
     ctx.font = "45px 'Micro 5', monospace";
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 6;
@@ -230,15 +259,18 @@ function draw() {
     ctx.fillStyle = "#fff";
     ctx.fillText(subText, canvas.width / 2, canvas.height / 2 + 70);
 
-    // Appel async pour afficher les boutons avec délai
+    // Affiche les boutons après un délai
     showEndButtons();
   }
 }
 
+// ==================== GAME LOOP ====================
+
+// Met à jour la logique du jeu (déplacements, collisions, etc.)
 function update() {
   if (gameOver || gameWon) return;
 
-  // Intern (flèches)
+  // Déplacement de l'intern (flèches)
   for (let key in keys) {
     if (keys[key]) {
       switch (key) {
@@ -250,7 +282,7 @@ function update() {
     }
   }
 
-  // Boss (ZQSD ou WASD selon layout)
+  // Déplacement du boss (ZQSD ou WASD selon layout)
   const layout = localStorage.getItem('keyboardLayout') || 'azerty';
   for (let key in keys) {
     if (keys[key]) {
@@ -272,13 +304,14 @@ function update() {
     }
   }
 
-  // check collision
+  // Vérifie la collision entre boss et intern
   if (checkCollision()) {
     gameOver = true;
     cancelAnimationFrame(animationId);
   }
 }
 
+// Boucle principale du jeu (update + draw)
 function gameLoop() {
   update();
   draw();
@@ -287,9 +320,11 @@ function gameLoop() {
   }
 }
 
-// Pour contrôle depuis menu.ts
+// ==================== START/STOP GAME ====================
+
+// Initialise une nouvelle partie
 export function startGame() {
-  // Calculer le centre du canvas
+  // Place les joueurs au centre du canvas, côte à côte
   const centerX = canvas.width / 2;
   const centerY = canvas.height / 2;
   const offset = 50; // distance entre les deux personnages
@@ -313,6 +348,7 @@ export function startGame() {
   }
 }
 
+// Arrête la partie en cours
 export function stopGame() {
   cancelAnimationFrame(animationId);
   clearInterval(moneyInterval);
