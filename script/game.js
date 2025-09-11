@@ -94,7 +94,7 @@ let animationId;
 
 // ==================== ARGENT ====================
 let money = 0;
-let goal = 70000;
+let goal = 40000;
 let moneyGains = [];
 let moneyInterval;
 
