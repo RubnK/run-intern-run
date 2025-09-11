@@ -73,5 +73,8 @@ run-intern-run/
 
 ---
 
+## Lien GitHub
+- https://github.com/RubnK/run-intern-run
+
 ## Auteurs
 - Alpino & RubnK — EFREI 2025
