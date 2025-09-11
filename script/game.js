@@ -1,5 +1,5 @@
 import { Intern } from "./intern.js";
-import { Boss } from "./boss.js";
+import { Boss, spawnCoffee, drawCoffee } from "./boss.js";
 
 // ==================== UI BUTTONS ====================
 
@@ -227,6 +227,9 @@ function draw() {
     ctx.globalAlpha = 1;
   }
 
+  // Dessine le café
+  drawCoffee(ctx);
+
   // Affiche l'écran de fin si victoire ou défaite
   if (gameOver || gameWon) {
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
@@ -346,6 +349,11 @@ export function startGame() {
   if (background.complete) {
     gameLoop();
   }
+
+  spawnCoffee(canvas);
+  setInterval(() => {
+    if (!coffee || !coffee.active) spawnCoffee(canvas);
+  }, 10000);
 }
 
 // Arrête la partie en cours
