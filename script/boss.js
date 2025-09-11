@@ -124,7 +124,7 @@ export class Boss {
       let dy = newY - coffee.y;
       if (Math.sqrt(dx * dx + dy * dy) < this.size + coffee.radius) {
         coffee.active = false;
-        this.speed = this.baseSpeed * 2;
+        this.speed = this.baseSpeed * 3;
         this.coffeeBoost = true;
         // Timer pour remettre la vitesse à la normale après 3 secondes
         if (coffeeTimeout) clearTimeout(coffeeTimeout);
