@@ -24,6 +24,7 @@ function showReplayButton() {
       // Redémarre la partie sans couper la musique
       cancelAnimationFrame(animationId);
       clearInterval(moneyInterval);
+      internLives = 3;
       // Réinitialise l'état du jeu mais ne touche pas à la musique
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
