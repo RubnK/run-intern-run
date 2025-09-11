@@ -21,8 +21,42 @@ function showReplayButton() {
     btn.style.display = 'inline-block';
     btn.onclick = null;
     btn.onclick = () => {
-      stopGame();
-      startGame();
+      // Redémarre la partie sans couper la musique
+      cancelAnimationFrame(animationId);
+      clearInterval(moneyInterval);
+      // Réinitialise l'état du jeu mais ne touche pas à la musique
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const offset = 50;
+      intern = new Intern(centerX - offset, centerY, 5, 20, canvas);
+      boss   = new Boss(centerX + offset, centerY, 5, 25, canvas);
+      keys = {};
+      gameOver = false;
+      gameWon = false;
+      money = 0;
+      moneyGains = [];
+      coffee = null;
+      hideReplayButton();
+      hideMenuButton();
+      resizeCanvas();
+      background.onload = () => { gameLoop(); };
+      if (background.complete) { gameLoop(); }
+      moneyInterval = setInterval(() => {
+        if (!gameOver && !gameWon) {
+          const gain = Math.floor(Math.random() * 1500) + 500;
+          money += gain;
+          moneyGains.push({ text: `+${gain}`, x: 20, y: 60, alpha: 1, life: 60 });
+          coinSound.volume = getGameVolume();
+          coinSound.currentTime = 0;
+          coinSound.play();
+          if (money >= goal) {
+            gameWon = true;
+            cancelAnimationFrame(animationId);
+            draw();
+          }
+        }
+      }, 1000);
+      scheduleCoffee();
     };
   }
 }
@@ -65,8 +99,17 @@ let moneyGains = [];
 let moneyInterval;
 
 // ==================== SON ====================
-const coinSound = new Audio("assets/sounds/cashsound.mp3");
-coinSound.volume = 0.5;
+const coinSound = new Audio("assets/sound/cashsound.mp3");
+function getGameVolume() {
+  const v = localStorage.getItem('gameVolume');
+  if (v !== null) return Math.max(0, Math.min(1, parseInt(v, 10) / 100));
+  return 0.5;
+}
+const music = new Audio("assets/sound/background.mp3");
+music.loop = true;
+music.preload = 'auto';
+coinSound.volume = getGameVolume();
+music.volume = getGameVolume() * 0.5; // musique moins forte que les effets
 
 // ==================== CAFÉ ====================
 let coffee;
@@ -290,6 +333,10 @@ export function startGame() {
   background.onload = () => { gameLoop(); };
   if (background.complete) { gameLoop(); }
 
+  // Musique de fond
+  music.volume = getGameVolume() * 0.5;
+  try { music.currentTime = 0; music.play(); } catch(e) {}
+  
   moneyInterval = setInterval(() => {
     if (!gameOver && !gameWon) {
       const gain = Math.floor(Math.random() * 1500) + 500;
@@ -299,8 +346,9 @@ export function startGame() {
       moneyGains.push({ text: `+${gain}`, x: 20, y: 60, alpha: 1, life: 60 });
 
       // son
-      coinSound.currentTime = 0;
-      coinSound.play();
+  coinSound.volume = getGameVolume();
+  coinSound.currentTime = 0;
+  coinSound.play();
 
       if (money >= goal) {
         gameWon = true;
@@ -318,4 +366,5 @@ export function stopGame() {
   clearInterval(moneyInterval);
   hideReplayButton();
   hideMenuButton();
+  try { music.pause(); music.currentTime = 0; } catch(e) {}
 }
