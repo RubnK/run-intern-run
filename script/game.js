@@ -91,6 +91,7 @@ let keys = {};
 let gameOver = false;
 let gameWon = false;
 let animationId;
+let internLives = 3;
 
 // ==================== ARGENT ====================
 let money = 0;
@@ -204,6 +205,17 @@ function draw() {
   intern.draw(ctx);
   boss.draw(ctx);
 
+  // Affichage des vies
+  const heartFull = new Image();
+  heartFull.src = "assets/sprites/heart_full.png";
+  const heartEmpty = new Image();
+  heartEmpty.src = "assets/sprites/heart_empty.png";
+  const heartSize = 38;
+  for (let i = 0; i < 3; i++) {
+    const img = i < internLives ? heartFull : heartEmpty;
+    ctx.drawImage(img, 20 + i * (heartSize + 8), 50, heartSize, heartSize);
+  }
+
   ctx.fillStyle = "black";
   ctx.font = "bold 28px Arial";
   ctx.textAlign = "left";
@@ -297,8 +309,17 @@ function update() {
   }
 
   if (checkCollision()) {
-    gameOver = true;
-    cancelAnimationFrame(animationId);
+    internLives--;
+    if (internLives <= 0) {
+      gameOver = true;
+      cancelAnimationFrame(animationId);
+    } else {
+      // respawn intern à une position aléatoire sur la carte
+      const margin = 40;
+      intern.x = Math.random() * (canvas.width - 2 * margin) + margin;
+      intern.y = Math.random() * (canvas.height - 2 * margin) + margin;
+      // le boss ne bouge pas
+    }
   }
 }
 
@@ -325,6 +346,7 @@ export function startGame() {
   money = 0;
   moneyGains = [];
   coffee = null;
+  internLives = 3;
 
   hideReplayButton();
   hideMenuButton();
@@ -346,9 +368,9 @@ export function startGame() {
       moneyGains.push({ text: `+${gain}`, x: 20, y: 60, alpha: 1, life: 60 });
 
       // son
-  coinSound.volume = getGameVolume();
-  coinSound.currentTime = 0;
-  coinSound.play();
+      coinSound.volume = getGameVolume();
+      coinSound.currentTime = 0;
+      coinSound.play();
 
       if (money >= goal) {
         gameWon = true;
