@@ -65,7 +65,7 @@ let moneyGains = [];
 let moneyInterval;
 
 // ==================== SON ====================
-const coinSound = new Audio("assets/sounds/coin.mp3");
+const coinSound = new Audio("assets/sounds/cashsound.mp3");
 coinSound.volume = 0.5;
 
 // ==================== CAFÉ ====================
